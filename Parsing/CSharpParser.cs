@@ -173,7 +173,7 @@ namespace StructuralPatternsHunter.Parsing
                     return (false, null);
             }
 
-            var (success, type) = await TryParseCompoundLiteralAsync("(", "<");
+            var (success, type) = await TryParseCompoundLiteralAsync("(", "<", "[");
             if (!success)
                 return (false, null);
 
@@ -222,8 +222,8 @@ namespace StructuralPatternsHunter.Parsing
             if (_tokensEnumerator.Current == "=")
                 return (await TrySeekTokenAsync(";"), null);
             // In case there was no '=' acquired token must be processed second time (so it is returned)
-            else
-                return (true, _tokensEnumerator.Current.Value);
+            
+            return (true, _tokensEnumerator.Current.Value);
         }
 
         private async Task<bool> TryParseMethodAsync(string type, string name, Entity entity)
@@ -250,7 +250,7 @@ namespace StructuralPatternsHunter.Parsing
                         return false;
                 }
 
-                var (success, argumentType) = await TryParseDotSeparatedLiteralAsync();
+                var (success, argumentType) = await TryParseCompoundLiteralAsync("(", "<", "[");
                 if (!success)
                     return false;
 

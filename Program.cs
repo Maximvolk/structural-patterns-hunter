@@ -3,7 +3,7 @@ using StructuralPatternsHunter.Analysis;
 using StructuralPatternsHunter.Output;
 
 
-var rootDirectory = "/Users/maximvolk/Education/Polytech/6/polytech-csharp/Lab7";
+var rootDirectory = "/Users/maximvolk/Source/design-patterns-csharp/Bridge.Conceptual";
 var outputPath = "./test.txt";
 var maxParallelFiles = 20;
 
