@@ -36,6 +36,7 @@ namespace StructuralPatternsHunter.Parsing
             }
             while (_tokensEnumerator.Current != seekToken || depth > 1);
 
+            builder?.Append(_tokensEnumerator.Current.Value);
             return true;
         }
 
@@ -44,6 +45,8 @@ namespace StructuralPatternsHunter.Parsing
             var literalBuilder = new StringBuilder(_tokensEnumerator.Current.Value);
             var lookForDot = true;
 
+            var angleBracketOccurred = false;
+            
             while (true)
             {
                 if (!await MoveNextAsync())
@@ -59,9 +62,14 @@ namespace StructuralPatternsHunter.Parsing
                     {
                         if (!await TrySeekTokenCheckNestedAsync(">", "<", literalBuilder))
                             return (false, string.Empty);
+
+                        angleBracketOccurred = true;
                     }
                     else if (_tokensEnumerator.Current == "(")
                     {
+                        if (!angleBracketOccurred)
+                            return (true, literalBuilder.ToString());
+                        
                         if (!await TrySeekTokenCheckNestedAsync(")", "(", literalBuilder))
                             return (false, string.Empty);
                     }

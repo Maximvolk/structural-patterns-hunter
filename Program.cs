@@ -3,8 +3,8 @@ using StructuralPatternsHunter.Analysis;
 using StructuralPatternsHunter.Output;
 
 
-var rootDirectory = "/Projects/Lab7";
-var outputPath = "/Projects/test.txt";
+var rootDirectory = "/Users/maximvolk/Education/Polytech/6/polytech-csharp/Lab7";
+var outputPath = "./test.txt";
 var maxParallelFiles = 20;
 
 var parsingFacade = new ParsingFacade(maxParallelFiles);

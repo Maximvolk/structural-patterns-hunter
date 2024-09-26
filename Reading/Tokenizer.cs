@@ -27,7 +27,7 @@ namespace StructuralPatternsHunter.Reading
                         else
                             quotesOpened = !quotesOpened;
                     }
-                    else if (quotesOpened || char.IsLetterOrDigit(symbol) || symbol == '_')
+                    else if (quotesOpened || char.IsLetterOrDigit(symbol) || symbol == '_' || symbol == '?')
                     {
                         currentToken.Append(symbol);
                     }

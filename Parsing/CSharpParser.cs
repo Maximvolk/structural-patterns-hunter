@@ -15,8 +15,8 @@ namespace StructuralPatternsHunter.Parsing
             if (!await MoveNextAsync())
                 yield break;
 
-            var (succes, referencedModules) = await TryParseReferencedModulesAsync();
-            if (!succes)
+            var (success, referencedModules) = await TryParseReferencedModulesAsync();
+            if (!success)
                 yield break;
 
             if (!await TrySeekTokenAsync("namespace"))
@@ -69,11 +69,19 @@ namespace StructuralPatternsHunter.Parsing
         {
             var entityName = new StringBuilder();
 
-            while ((await MoveNextAsync()) && _tokensEnumerator.Current != ":" && _tokensEnumerator.Current != "{")
+            while (await MoveNextAsync() && _tokensEnumerator.Current != ":" && _tokensEnumerator.Current != "{")
             {
                 if (_tokensEnumerator.Current == "(")
                 {
                     if (!await TrySeekTokenCheckNestedAsync(")", "("))
+                        return (string.Empty, null);
+
+                    continue;
+                }
+                
+                if (_tokensEnumerator.Current == "<")
+                {
+                    if (!await TrySeekTokenCheckNestedAsync(">", "<"))
                         return (string.Empty, null);
 
                     continue;
