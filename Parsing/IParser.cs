@@ -1,11 +1,11 @@
-﻿using StructuralPatternsHunter.AST;
+﻿using StructuralPatternsHunter.Entities;
 using StructuralPatternsHunter.Reading;
 
 namespace StructuralPatternsHunter.Parsing
 {
     internal interface IParser
     {
-        IAsyncEnumerable<ASTNode> ParseNodesAsync();
+        IAsyncEnumerable<(string ShortName, Entity Entity)> ParseEntitiesAsync();
 
         static IParser? GetParser(string fileExtension, Tokenizer tokenizer)
         {

@@ -7,8 +7,10 @@ namespace StructuralPatternsHunter.Reading
         private readonly Reader _reader = reader;
         private readonly char[] _symbolsToIgnore = [ ' ', '\n', '\r', '\t' ];
 
-        public async IAsyncEnumerable<string> TokenizeAsync()
+        public async IAsyncEnumerable<Token> TokenizeAsync()
         {
+            var lineNumber = 1;
+
             await foreach (var line in _reader.ReadLinesAsync())
             {
                 var currentToken = new StringBuilder();
@@ -32,10 +34,10 @@ namespace StructuralPatternsHunter.Reading
                     else
                     {
                         if (currentToken.Length > 0)
-                            yield return currentToken.ToString().Trim();
+                            yield return new Token(currentToken.ToString().Trim(), lineNumber, _reader.FilePath);
 
                         if (!_symbolsToIgnore.Contains(symbol))
-                            yield return symbol.ToString();
+                            yield return new Token(symbol.ToString(), lineNumber, _reader.FilePath);
 
                         currentToken.Clear();
                     }
@@ -44,7 +46,9 @@ namespace StructuralPatternsHunter.Reading
                 }
 
                 if (currentToken.Length > 0)
-                    yield return currentToken.ToString().Trim();
+                    yield return new Token(currentToken.ToString().Trim(), lineNumber, _reader.FilePath);
+
+                lineNumber++;
             }
         }
     }

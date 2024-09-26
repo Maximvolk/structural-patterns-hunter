@@ -1,4 +1,6 @@
-﻿using StructuralPatternsHunter.AST;
+﻿using System.Collections.Concurrent;
+
+using StructuralPatternsHunter.Entities;
 using StructuralPatternsHunter.Output;
 
 namespace StructuralPatternsHunter.Analysis
@@ -7,9 +9,28 @@ namespace StructuralPatternsHunter.Analysis
     {
         private readonly OutputWriter _outputWriter = outputWriter;
 
-        public void Analyze(ASTNode node)
+        private readonly List<IPatternExtractor> _extractors = new()
         {
+            
+        };
 
+        public void Analyze(ConcurrentDictionary<string, List<Entity>> entitiesMap)
+        {
+            foreach (var (shortName, entities) in entitiesMap)
+            {
+                foreach (var entity in entities)
+                {
+
+                }
+            }
+        }
+
+        public void ProcessAnalysis(string shortName, Entity entity)
+        {
+            foreach (var extractor in _extractors)
+            {
+                
+            }
         }
     }
 }

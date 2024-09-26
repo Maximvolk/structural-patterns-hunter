@@ -3,15 +3,17 @@ using StructuralPatternsHunter.Analysis;
 using StructuralPatternsHunter.Output;
 
 
-var rootDirectory = "/Projects/test/";
+var rootDirectory = "/Projects/Lab7";
 var outputPath = "/Projects/test.txt";
-var maxParallelFiles = 5;
+var maxParallelFiles = 20;
 
 var parsingFacade = new ParsingFacade(maxParallelFiles);
-var nodes = await parsingFacade.ParseAsync(rootDirectory);
+var entities = await parsingFacade.ParseAsync(rootDirectory);
+
+var treeCreator = new EntitiesTreeCreator();
+treeCreator.FillRelationships(entities);
 
 var outputWriter = new OutputWriter(outputPath);
 var analyzer = new Analyzer(outputWriter);
 
-foreach (var node in nodes)
-    analyzer.Analyze(node);
+analyzer.Analyze(entities);
