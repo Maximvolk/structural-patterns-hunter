@@ -8,7 +8,7 @@ namespace StructuralPatternsHunter.Parsing
     internal class CSharpParser(Tokenizer tokenizer) : BaseParser(tokenizer), IParser
     {
         private readonly string[] _modifiers = [ "internal", "private", "public", "protected", "abstract", "virtual", "static", "readonly", "override" ];
-        private readonly string[] _argumentModifiers = [ "in", "out", "ref", "this" ];
+        private readonly string[] _argumentModifiers = [ "in", "out", "ref", "this", "params" ];
 
         public async IAsyncEnumerable<(string ShortName, Entity Entity)> ParseEntitiesAsync()
         {
@@ -27,11 +27,7 @@ namespace StructuralPatternsHunter.Parsing
                 if (!await MoveNextAsync())
                     yield break;
 
-                var namespaceName = new StringBuilder(_tokensEnumerator.Current.Value);
-
-                while ((await MoveNextAsync()) && _tokensEnumerator.Current != "{")
-                    namespaceName.Append(_tokensEnumerator.Current.Value);
-
+                var namespaceName = _tokensEnumerator.Current.Value;
                 if (namespaceName.Length == 0)
                     yield break;
 
@@ -39,7 +35,7 @@ namespace StructuralPatternsHunter.Parsing
                 {
                     var entityType = _tokensEnumerator.Current == "class" ? EntityType.Class : EntityType.Interface;
 
-                    var (shortName, entity) = await ParseEntityAsync(entityType, referencedModules, namespaceName.ToString());
+                    var (shortName, entity) = await ParseEntityAsync(entityType, referencedModules, namespaceName);
                     if (entity != null)
                         yield return (shortName, entity);
                 }
@@ -52,13 +48,12 @@ namespace StructuralPatternsHunter.Parsing
 
             while (_tokensEnumerator.Current == "using" && (await MoveNextAsync()))
             {
-                var (success, module) = await TryParseDotSeparatedLiteralAsync();
-                if (success)
-                    referencedModules.Add(module);
-                else
+                referencedModules.Add(_tokensEnumerator.Current.Value);
+
+                if (!await MoveNextAsync() || _tokensEnumerator.Current != ";")
                     return (false, []);
 
-                if (_tokensEnumerator.Current == ";" && (!await MoveNextAsync()))
+                if (!await MoveNextAsync())
                     return (false, []);
             }
 
@@ -68,20 +63,13 @@ namespace StructuralPatternsHunter.Parsing
         private async Task<(string ShortName, Entity? Entity)> ParseEntityAsync(EntityType type, List<string> referencedModules, string namespaceName)
         {
             var entityName = new StringBuilder();
+            var entityLocation = _tokensEnumerator.Current.Location;
 
             while (await MoveNextAsync() && _tokensEnumerator.Current != ":" && _tokensEnumerator.Current != "{")
             {
                 if (_tokensEnumerator.Current == "(")
                 {
                     if (!await TrySeekTokenCheckNestedAsync(")", "("))
-                        return (string.Empty, null);
-
-                    continue;
-                }
-                
-                if (_tokensEnumerator.Current == "<")
-                {
-                    if (!await TrySeekTokenCheckNestedAsync(">", "<"))
                         return (string.Empty, null);
 
                     continue;
@@ -99,7 +87,7 @@ namespace StructuralPatternsHunter.Parsing
                 Name = entityName.ToString(),
                 Type = type,
                 ReferencedModules = referencedModules,
-                Locations = [_tokensEnumerator.Current.Location],
+                Locations = [entityLocation],
             };
 
             if (_tokensEnumerator.Current == ":" && !await TryParseParentsAsync(entity))
@@ -157,11 +145,8 @@ namespace StructuralPatternsHunter.Parsing
         private async Task<(bool Success, string? TokenToBeProcessed)> TryParseEntityChildAsync(Entity entity)
         {
             // Skip attributes ("[Attribute]")
-            while (_tokensEnumerator.Current == "[")
+            while (_tokensEnumerator.Current.Value.StartsWith('[') && _tokensEnumerator.Current.Value.EndsWith(']'))
             {
-                if (!await TrySeekTokenCheckNestedAsync("]", "["))
-                    return (false, null);
-
                 if (!await MoveNextAsync())
                     return (false, null);
             }
@@ -173,8 +158,8 @@ namespace StructuralPatternsHunter.Parsing
                     return (false, null);
             }
 
-            var (success, type) = await TryParseCompoundLiteralAsync("(", "<", "[");
-            if (!success)
+            var type = _tokensEnumerator.Current.Value;
+            if (!await MoveNextAsync())
                 return (false, null);
 
             // Constructor does not have return type. In this case we have name in type
@@ -241,17 +226,14 @@ namespace StructuralPatternsHunter.Parsing
                     continue;
 
                 // Skip attributes ("[Attribute]")
-                while (_tokensEnumerator.Current == "[")
+                while (_tokensEnumerator.Current.Value.StartsWith('[') && _tokensEnumerator.Current.Value.EndsWith(']'))
                 {
-                    if (!await TrySeekTokenCheckNestedAsync("]", "["))
-                        return false;
-
                     if (!await MoveNextAsync())
                         return false;
                 }
 
-                var (success, argumentType) = await TryParseCompoundLiteralAsync("(", "<", "[");
-                if (!success)
+                var argumentType = _tokensEnumerator.Current.Value;
+                if (!await MoveNextAsync())
                     return false;
 
                 method.Arguments.Add(new Property { Name = _tokensEnumerator.Current.Value, Type = argumentType });
@@ -260,13 +242,19 @@ namespace StructuralPatternsHunter.Parsing
             if (!await MoveNextAsync())
                 return false;
 
+            if (_tokensEnumerator.Current == ":")
+            {
+                if (!await TrySeekTokenAsync("{"))
+                    return false;
+            }
+
             if (_tokensEnumerator.Current == "{")
             {
                 if (!await TrySeekTokenCheckNestedAsync("}", "{"))
                     return false;
             }
             // Handle case "void Func() => statement;"
-            else if (_tokensEnumerator.Current == "=")
+            else if (_tokensEnumerator.Current == "=>")
             {
                 if (!await TrySeekTokenAsync(";"))
                     return false;

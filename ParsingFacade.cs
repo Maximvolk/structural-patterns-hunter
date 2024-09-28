@@ -32,26 +32,10 @@ namespace StructuralPatternsHunter
 
                 var parser = IParser.GetParser(Path.GetExtension(file), tokenizer);
                 if (parser == null)
-                {
-                    //Console.WriteLine($"Ignoring file {file}");
                     return;
-                }
 
                 await foreach (var (shortName, entity) in parser.ParseEntitiesAsync())
-                {
-                    // C# has partial classes so here they will be merged
-                    entities.AddOrUpdate(shortName, [entity], (key, value) =>
-                    {
-                        var anotherEntityPart = value.FirstOrDefault(e => e.FullName == entity.FullName);
-
-                        if (anotherEntityPart == null)
-                            value.Add(entity);
-                        else
-                            anotherEntityPart.Merge(entity);
-                        
-                        return value;
-                    });
-                }
+                    entities.AddOrUpdate(shortName, [entity], (key, value) => { value.Add(entity); return value; });
             }
             catch (Exception e)
             {

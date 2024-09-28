@@ -6,6 +6,7 @@ namespace StructuralPatternsHunter.Reading
     {
         private readonly Reader _reader = reader;
         private readonly char[] _symbolsToIgnore = [ ' ', '\n', '\r', '\t' ];
+        private readonly char[] _brakeSymbols = [ ' ', '\n', '\r', '\t', ';', '(', ')', '{', '}', ',', ':' ];
 
         public async IAsyncEnumerable<Token> TokenizeAsync()
         {
@@ -17,6 +18,7 @@ namespace StructuralPatternsHunter.Reading
 
                 char? previousSymbol = null;
                 var quotesOpened = false;
+                var angleBracketsDepth = 0;
 
                 foreach (var symbol in line)
                 {
@@ -27,9 +29,26 @@ namespace StructuralPatternsHunter.Reading
                         else
                             quotesOpened = !quotesOpened;
                     }
-                    else if (quotesOpened || char.IsLetterOrDigit(symbol) || symbol == '_' || symbol == '?')
+                    else if (symbol == '<')
                     {
                         currentToken.Append(symbol);
+                        angleBracketsDepth++;
+                    }
+                    else if (symbol == '>')
+                    {
+                        currentToken.Append(symbol);
+                        angleBracketsDepth--;
+                    }
+                    else if (quotesOpened || angleBracketsDepth > 0 || !_brakeSymbols.Contains(symbol))
+                    {
+                        currentToken.Append(symbol);
+
+                        var currentTokenString = currentToken.ToString();
+                        if (currentTokenString == "//" || currentTokenString == "/*" || currentTokenString == "*/")
+                        {
+                            yield return new Token(currentTokenString, lineNumber, _reader.FilePath);
+                            currentToken.Clear();
+                        }
                     }
                     else
                     {

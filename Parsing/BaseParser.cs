@@ -113,25 +113,37 @@ namespace StructuralPatternsHunter.Parsing
             if (!await _tokensEnumerator.MoveNextAsync())
                 return false;
 
-            // Skip comments and preprocessor directives
-            if (_tokensEnumerator.Current == "#")
-                return await SkipLineAsync();
-
-            if (_tokensEnumerator.Current != "/")
+            if (_tokensEnumerator.Current.Value == string.Empty)
                 return true;
 
-            if (!await _tokensEnumerator.MoveNextAsync())
-                return false;
-
-            if (_tokensEnumerator.Current == "/")
-                return await SkipLineAsync();
-
-            if (_tokensEnumerator.Current == "*")
+            // Skip comments and preprocessor directives
+            while (_tokensEnumerator.Current.Value != null &&
+                (_tokensEnumerator.Current.Value.StartsWith('#') || _tokensEnumerator.Current.Value.StartsWith("//") || _tokensEnumerator.Current.Value.StartsWith("/*")))
             {
-                if (!await TrySeekTokenAsync("/"))
-                    return false;
+                if (_tokensEnumerator.Current.Value.StartsWith('#'))
+                {
+                    if (!await SkipLineAsync())
+                        return false;
 
-                return await _tokensEnumerator.MoveNextAsync();
+                    continue;
+                }
+
+                if (_tokensEnumerator.Current.Value.StartsWith("//"))
+                {
+                    if (!await SkipLineAsync())
+                        return false;
+
+                    continue;
+                }
+
+                if (_tokensEnumerator.Current == "/*")
+                {
+                    if (!await TrySeekTokenAsync("*/"))
+                        return false;
+
+                    if (!await _tokensEnumerator.MoveNextAsync())
+                        return false;
+                }
             }
 
             return true;
