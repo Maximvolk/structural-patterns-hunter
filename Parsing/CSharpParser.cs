@@ -224,7 +224,7 @@ namespace StructuralPatternsHunter.Parsing
             {
                 if (_argumentModifiers.Any(m => _tokensEnumerator.Current == m) || _tokensEnumerator.Current == ",")
                     continue;
-
+                
                 // Skip attributes ("[Attribute]")
                 while (_tokensEnumerator.Current.Value.StartsWith('[') && _tokensEnumerator.Current.Value.EndsWith(']'))
                 {
