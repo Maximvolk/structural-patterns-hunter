@@ -3,8 +3,19 @@ using StructuralPatternsHunter.Analysis;
 using StructuralPatternsHunter.Output;
 
 
-var rootDirectory = "/Projects/Applications.Fg";
-var outputPath = "./test.txt";
+if (args.Length != 1)
+{
+    Console.WriteLine("No source code directory specified");
+    Environment.Exit(1);
+}
+
+var rootDirectory = args[0];
+if (!Directory.Exists(rootDirectory))
+{
+    Console.WriteLine("Source directory does not exist");
+    Environment.Exit(1);
+}
+
 var maxParallelFiles = 20;
 
 Console.WriteLine("Parsing files...");
@@ -15,7 +26,7 @@ Console.WriteLine("Building entities tree...");
 var treeCreator = new EntitiesTreeCreator();
 treeCreator.FillRelationships(entities);
 
-using var outputWriter = new OutputWriter(outputPath);
+using var outputWriter = new OutputWriter("patterns-report.md");
 var analyzer = new Analyzer(outputWriter);
 
 Console.WriteLine("Looking for patterns...");
