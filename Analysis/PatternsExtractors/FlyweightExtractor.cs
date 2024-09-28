@@ -6,11 +6,11 @@ namespace StructuralPatternsHunter.Analysis.PatternsExtractors
     internal class FlyweightExtractor : IPatternExtractor
     {
         private const string _patternDescription = """
-                                    Flyweight Design Pattern
-
-            Intent: Lets you fit more objects into the available amount of RAM by sharing
-            common parts of state between multiple objects, instead of keeping all of the
-            data in each object.
+            >                        Flyweight Design Pattern
+            >
+            >Intent: Lets you fit more objects into the available amount of RAM by sharing
+            >common parts of state between multiple objects, instead of keeping all of the
+            >data in each object.
             """;
 
         public bool TryExtract(Entity entity, ConcurrentDictionary<string, List<Entity>> entitiesMap, out PatternInfoDTO? patternInfo)

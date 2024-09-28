@@ -16,13 +16,13 @@ namespace StructuralPatternsHunter.Output
 
         public void Write(PatternInfoDTO pattern)
         {
-            _writer.Write("--------------------------------------------------\n");
+            _writer.Write("\n---\n");
             _writer.Write(pattern.Description);
-            _writer.Write("\n\n");
+            _writer.Write("    \n\n");
 
             foreach (var item in pattern.Items)
             {
-                var itemInfo = $"{item.Name} ({item.Location.File}, line {item.Location.Line}) -> {item.Description}\n";
+                var itemInfo = $"* {item.Name} ({item.Location.File}, line {item.Location.Line}) -> {item.Description}  \n";
                 _writer.Write(itemInfo);
             }
 

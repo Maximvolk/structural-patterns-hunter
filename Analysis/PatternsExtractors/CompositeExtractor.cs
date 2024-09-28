@@ -6,10 +6,10 @@ namespace StructuralPatternsHunter.Analysis.PatternsExtractors
     internal class CompositeExtractor : IPatternExtractor
     {
         private const string _patternDescription = """
-                                    Composite Design Pattern
-
-            Intent: Lets you compose objects into tree structures and then work with
-            these structures as if they were individual objects.
+            >                        Composite Design Pattern
+            >
+            >Intent: Lets you compose objects into tree structures and then work with
+            >these structures as if they were individual objects.
             """;
 
         public bool TryExtract(Entity entity, ConcurrentDictionary<string, List<Entity>> entitiesMap, out PatternInfoDTO? patternInfo)

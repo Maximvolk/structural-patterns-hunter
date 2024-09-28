@@ -7,12 +7,12 @@ namespace StructuralPatternsHunter.Analysis.PatternsExtractors
     internal class ProxyExtractor : IPatternExtractor
     {
         private const string _patternDescription = """
-                                    Proxy Design Pattern
-
-            Intent: Lets you provide a substitute or placeholder for another object. A
-            proxy controls access to the original object, allowing you to perform
-            something either before or after the request gets through to the original
-            object.
+            >                        Proxy Design Pattern
+            >            
+            >Intent: Lets you provide a substitute or placeholder for another object. A
+            >proxy controls access to the original object, allowing you to perform
+            >something either before or after the request gets through to the original
+            >object.
             """;
 
         public bool TryExtract(Entity entity, ConcurrentDictionary<string, List<Entity>> entitiesMap, out PatternInfoDTO? patternInfo)

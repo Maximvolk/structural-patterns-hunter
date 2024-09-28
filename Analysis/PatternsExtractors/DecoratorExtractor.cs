@@ -6,10 +6,10 @@ namespace StructuralPatternsHunter.Analysis.PatternsExtractors
     internal class DecoratorExtractor : IPatternExtractor
     {
         private const string _patternDescription = """
-                                    Decorator Design Pattern
-
-            Intent: Lets you attach new behaviors to objects by placing these objects
-            inside special wrapper objects that contain the behaviors.
+            >                        Decorator Design Pattern
+            >
+            >Intent: Lets you attach new behaviors to objects by placing these objects
+            >inside special wrapper objects that contain the behaviors.
             """;
 
         public bool TryExtract(Entity entity, ConcurrentDictionary<string, List<Entity>> entitiesMap, out PatternInfoDTO? patternInfo)

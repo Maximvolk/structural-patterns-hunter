@@ -6,10 +6,10 @@ namespace StructuralPatternsHunter.Analysis.PatternsExtractors
     internal class FacadeExtractor : IPatternExtractor
     {
         private const string _patternDescription = """
-                                    Facade Design Pattern
-
-            Intent: Provides a simplified interface to a library, a framework, or any
-            other complex set of classes.
+            >                        Facade Design Pattern
+            >
+            >Intent: Provides a simplified interface to a library, a framework, or any
+            >other complex set of classes.
             """;
 
         public bool TryExtract(Entity entity, ConcurrentDictionary<string, List<Entity>> entitiesMap, out PatternInfoDTO? patternInfo)
