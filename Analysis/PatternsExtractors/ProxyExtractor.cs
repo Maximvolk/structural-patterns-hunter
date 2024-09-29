@@ -1,12 +1,11 @@
 ﻿using System.Collections.Concurrent;
-using System.Xml.Schema;
 using StructuralPatternsHunter.Entities;
 
 namespace StructuralPatternsHunter.Analysis.PatternsExtractors
 {
     internal class ProxyExtractor : IPatternExtractor
     {
-        private const string _patternDescription = """
+        private const string PatternDescription = """
             >                        Proxy Design Pattern
             >            
             >Intent: Lets you provide a substitute or placeholder for another object. A
@@ -45,18 +44,16 @@ namespace StructuralPatternsHunter.Analysis.PatternsExtractors
                 realSubject = firstChild;
             }
 
-            if (realSubject != null && proxy != null)
-            {
-                patternInfo = PrepareOutput(entity, realSubject, proxy);
-                return true;
-            }
-
-            return false;
+            if (realSubject == null || proxy == null)
+                return false;
+            
+            patternInfo = PrepareOutput(entity, realSubject, proxy);
+            return true;
         }
 
         private PatternInfoDTO PrepareOutput(Entity subjectInterface, Entity realSubject, Entity proxy)
         {
-            var patternInfo = new PatternInfoDTO(_patternDescription);
+            var patternInfo = new PatternInfoDTO(PatternDescription);
             patternInfo.Items.Add(new PatternItemDTO(subjectInterface.Name, subjectInterface.Locations.First(), "Subject interface"));
 
             patternInfo.Items.Add(new PatternItemDTO(realSubject.Name, realSubject.Locations.First(), "Real subject"));

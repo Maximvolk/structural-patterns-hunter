@@ -35,7 +35,7 @@ namespace StructuralPatternsHunter
                     return;
 
                 await foreach (var (shortName, entity) in parser.ParseEntitiesAsync())
-                    entities.AddOrUpdate(shortName, [entity], (key, value) => { value.Add(entity); return value; });
+                    entities.AddOrUpdate(shortName, [entity], (_, value) => { value.Add(entity); return value; });
             }
             catch (Exception e)
             {

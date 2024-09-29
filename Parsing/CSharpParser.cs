@@ -22,18 +22,18 @@ namespace StructuralPatternsHunter.Parsing
             if (!await TrySeekTokenAsync("namespace"))
                 yield break;
 
-            while (_tokensEnumerator.Current == "namespace")
+            while (TokensEnumerator.Current == "namespace")
             {
                 if (!await MoveNextAsync())
                     yield break;
 
-                var namespaceName = _tokensEnumerator.Current.Value;
+                var namespaceName = TokensEnumerator.Current.Value;
                 if (namespaceName.Length == 0)
                     yield break;
 
                 while (await TrySeekTokenAsync("class", "interface"))
                 {
-                    var entityType = _tokensEnumerator.Current == "class" ? EntityType.Class : EntityType.Interface;
+                    var entityType = TokensEnumerator.Current == "class" ? EntityType.Class : EntityType.Interface;
 
                     var (shortName, entity) = await ParseEntityAsync(entityType, referencedModules, namespaceName);
                     if (entity != null)
@@ -46,11 +46,11 @@ namespace StructuralPatternsHunter.Parsing
         {
             var referencedModules = new List<string>();
 
-            while (_tokensEnumerator.Current == "using" && (await MoveNextAsync()))
+            while (TokensEnumerator.Current == "using" && (await MoveNextAsync()))
             {
-                referencedModules.Add(_tokensEnumerator.Current.Value);
+                referencedModules.Add(TokensEnumerator.Current.Value);
 
-                if (!await MoveNextAsync() || _tokensEnumerator.Current != ";")
+                if (!await MoveNextAsync() || TokensEnumerator.Current != ";")
                     return (false, []);
 
                 if (!await MoveNextAsync())
@@ -63,11 +63,11 @@ namespace StructuralPatternsHunter.Parsing
         private async Task<(string ShortName, Entity? Entity)> ParseEntityAsync(EntityType type, List<string> referencedModules, string namespaceName)
         {
             var entityName = new StringBuilder();
-            var entityLocation = _tokensEnumerator.Current.Location;
+            var entityLocation = TokensEnumerator.Current.Location;
 
-            while (await MoveNextAsync() && _tokensEnumerator.Current != ":" && _tokensEnumerator.Current != "{")
+            while (await MoveNextAsync() && TokensEnumerator.Current != ":" && TokensEnumerator.Current != "{")
             {
-                if (_tokensEnumerator.Current == "(")
+                if (TokensEnumerator.Current == "(")
                 {
                     if (!await TrySeekTokenCheckNestedAsync(")", "("))
                         return (string.Empty, null);
@@ -75,7 +75,7 @@ namespace StructuralPatternsHunter.Parsing
                     continue;
                 }
 
-                entityName.Append(_tokensEnumerator.Current.Value);
+                entityName.Append(TokensEnumerator.Current.Value);
             }
 
             if (entityName.Length == 0)
@@ -90,12 +90,12 @@ namespace StructuralPatternsHunter.Parsing
                 Locations = [entityLocation],
             };
 
-            if (_tokensEnumerator.Current == ":" && !await TryParseParentsAsync(entity))
+            if (TokensEnumerator.Current == ":" && !await TryParseParentsAsync(entity))
                 return (string.Empty, null);
 
-            while ((await MoveNextAsync()) && _tokensEnumerator.Current != "}")
+            while ((await MoveNextAsync()) && TokensEnumerator.Current != "}")
             {
-                if (_tokensEnumerator.Current == ";")
+                if (TokensEnumerator.Current == ";")
                     continue;
 
                 string? token;
@@ -104,9 +104,7 @@ namespace StructuralPatternsHunter.Parsing
                 // In those situations it must be processed one more time
                 do
                 {
-                    (var success, token) = await TryParseEntityChildAsync(entity);
-                    //if (!success)
-                    //    return (string.Empty, null);
+                    (var _, token) = await TryParseEntityChildAsync(entity);
                 }
                 while (token != null && token != "}");
 
@@ -121,9 +119,9 @@ namespace StructuralPatternsHunter.Parsing
         {
             var nameBuilder = new StringBuilder();
 
-            while ((await MoveNextAsync()) && _tokensEnumerator.Current != "{")
+            while ((await MoveNextAsync()) && TokensEnumerator.Current != "{")
             {
-                if (_tokensEnumerator.Current == ",")
+                if (TokensEnumerator.Current == ",")
                 {
                     if (nameBuilder.Length == 0)
                         return false;
@@ -132,7 +130,7 @@ namespace StructuralPatternsHunter.Parsing
                     nameBuilder.Clear();
                 }
                 else
-                    nameBuilder.Append(_tokensEnumerator.Current.Value);
+                    nameBuilder.Append(TokensEnumerator.Current.Value);
             }
 
             if (nameBuilder.Length == 0)
@@ -145,36 +143,36 @@ namespace StructuralPatternsHunter.Parsing
         private async Task<(bool Success, string? TokenToBeProcessed)> TryParseEntityChildAsync(Entity entity)
         {
             // Skip attributes ("[Attribute]")
-            while (_tokensEnumerator.Current.Value.StartsWith('[') && _tokensEnumerator.Current.Value.EndsWith(']'))
+            while (TokensEnumerator.Current.Value.StartsWith('[') && TokensEnumerator.Current.Value.EndsWith(']'))
             {
                 if (!await MoveNextAsync())
                     return (false, null);
             }
 
             // Skip modifiers
-            while (_modifiers.Any(m => _tokensEnumerator.Current == m))
+            while (_modifiers.Any(m => TokensEnumerator.Current == m))
             {
                 if (!await MoveNextAsync())
                     return (false, null);
             }
 
-            var type = _tokensEnumerator.Current.Value;
+            var type = TokensEnumerator.Current.Value;
             if (!await MoveNextAsync())
                 return (false, null);
 
             // Constructor does not have return type. In this case we have name in type
-            if (_tokensEnumerator.Current == "(")
+            if (TokensEnumerator.Current == "(")
                 return (await TryParseMethodAsync(string.Empty, type, entity), null);
 
-            var name = _tokensEnumerator.Current.Value;
+            var name = TokensEnumerator.Current.Value;
 
             if (!await MoveNextAsync())
                 return (false, null);
 
             // No opening parenthesis means it is a property (field)
-            if (_tokensEnumerator.Current == "{" || _tokensEnumerator.Current == ";" || _tokensEnumerator.Current == "=")
+            if (TokensEnumerator.Current == "{" || TokensEnumerator.Current == ";" || TokensEnumerator.Current == "=")
                 return await TryParsePropertyAsync(type, name, entity);
-            else if (_tokensEnumerator.Current == "(")
+            else if (TokensEnumerator.Current == "(")
                 return (await TryParseMethodAsync(type, name, entity), null);
             else
                 return (false, null);
@@ -186,14 +184,14 @@ namespace StructuralPatternsHunter.Parsing
             {
                 Name = name,
                 Type = type,
-                Location = _tokensEnumerator.Current.Location,
+                Location = TokensEnumerator.Current.Location,
             });
 
             // Checking field conditions
-            if (_tokensEnumerator.Current == ";")
+            if (TokensEnumerator.Current == ";")
                 return (true, null);
 
-            if (_tokensEnumerator.Current == "=")
+            if (TokensEnumerator.Current == "=")
                 return (await TrySeekTokenAsync(";"), null);
 
             // At this point is must be property so checking property for correctness
@@ -204,11 +202,11 @@ namespace StructuralPatternsHunter.Parsing
             if (!await MoveNextAsync())
                 return (false, null);
 
-            if (_tokensEnumerator.Current == "=")
+            if (TokensEnumerator.Current == "=")
                 return (await TrySeekTokenAsync(";"), null);
             // In case there was no '=' acquired token must be processed second time (so it is returned)
             
-            return (true, _tokensEnumerator.Current.Value);
+            return (true, TokensEnumerator.Current.Value);
         }
 
         private async Task<bool> TryParseMethodAsync(string type, string name, Entity entity)
@@ -217,44 +215,44 @@ namespace StructuralPatternsHunter.Parsing
             {
                 Name = name,
                 ReturnType = type,
-                Location = _tokensEnumerator.Current.Location
+                Location = TokensEnumerator.Current.Location
             };
 
-            while ((await MoveNextAsync()) && _tokensEnumerator.Current != ")")
+            while ((await MoveNextAsync()) && TokensEnumerator.Current != ")")
             {
-                if (_argumentModifiers.Any(m => _tokensEnumerator.Current == m) || _tokensEnumerator.Current == ",")
+                if (_argumentModifiers.Any(m => TokensEnumerator.Current == m) || TokensEnumerator.Current == ",")
                     continue;
                 
                 // Skip attributes ("[Attribute]")
-                while (_tokensEnumerator.Current.Value.StartsWith('[') && _tokensEnumerator.Current.Value.EndsWith(']'))
+                while (TokensEnumerator.Current.Value.StartsWith('[') && TokensEnumerator.Current.Value.EndsWith(']'))
                 {
                     if (!await MoveNextAsync())
                         return false;
                 }
 
-                var argumentType = _tokensEnumerator.Current.Value;
+                var argumentType = TokensEnumerator.Current.Value;
                 if (!await MoveNextAsync())
                     return false;
 
-                method.Arguments.Add(new Property { Name = _tokensEnumerator.Current.Value, Type = argumentType });
+                method.Arguments.Add(new Property { Name = TokensEnumerator.Current.Value, Type = argumentType });
             }
 
             if (!await MoveNextAsync())
                 return false;
 
-            if (_tokensEnumerator.Current == ":")
+            if (TokensEnumerator.Current == ":")
             {
                 if (!await TrySeekTokenAsync("{"))
                     return false;
             }
 
-            if (_tokensEnumerator.Current == "{")
+            if (TokensEnumerator.Current == "{")
             {
                 if (!await TrySeekTokenCheckNestedAsync("}", "{"))
                     return false;
             }
             // Handle case "void Func() => statement;"
-            else if (_tokensEnumerator.Current == "=>")
+            else if (TokensEnumerator.Current == "=>")
             {
                 if (!await TrySeekTokenAsync(";"))
                     return false;

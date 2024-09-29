@@ -23,8 +23,7 @@ var parsingFacade = new ParsingFacade(maxParallelFiles);
 var entities = await parsingFacade.ParseAsync(rootDirectory);
 
 Console.WriteLine("Building entities tree...");
-var treeCreator = new EntitiesTreeCreator();
-treeCreator.FillRelationships(entities);
+EntitiesTreeCreator.FillRelationships(entities);
 
 using var outputWriter = new OutputWriter("patterns-report.md");
 var analyzer = new Analyzer(outputWriter);

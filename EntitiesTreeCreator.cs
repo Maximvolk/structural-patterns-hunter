@@ -5,7 +5,7 @@ namespace StructuralPatternsHunter
 {
     internal class EntitiesTreeCreator
     {
-        public void FillRelationships(ConcurrentDictionary<string, List<Entity>> entitiesMap)
+        public static void FillRelationships(ConcurrentDictionary<string, List<Entity>> entitiesMap)
         {
             foreach (var entity in entitiesMap.SelectMany(kvp => kvp.Value))
             {

@@ -5,7 +5,7 @@ namespace StructuralPatternsHunter.Analysis.PatternsExtractors
 {
     internal class DecoratorExtractor : IPatternExtractor
     {
-        private const string _patternDescription = """
+        private const string PatternDescription = """
             >                        Decorator Design Pattern
             >
             >Intent: Lets you attach new behaviors to objects by placing these objects
@@ -39,7 +39,7 @@ namespace StructuralPatternsHunter.Analysis.PatternsExtractors
 
         private PatternInfoDTO PrepareOutput(Entity baseComponent, IEnumerable<Entity> concreteComponents, Entity baseDecorator)
         {
-            var patternInfo = new PatternInfoDTO(_patternDescription);
+            var patternInfo = new PatternInfoDTO(PatternDescription);
             patternInfo.Items.Add(new PatternItemDTO(baseComponent.Name, baseComponent.Locations.First(), "Base component"));
 
             foreach (var concreteComponent in concreteComponents)

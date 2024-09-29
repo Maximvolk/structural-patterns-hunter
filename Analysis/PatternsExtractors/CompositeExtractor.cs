@@ -5,7 +5,7 @@ namespace StructuralPatternsHunter.Analysis.PatternsExtractors
 {
     internal class CompositeExtractor : IPatternExtractor
     {
-        private const string _patternDescription = """
+        private const string PatternDescription = """
             >                        Composite Design Pattern
             >
             >Intent: Lets you compose objects into tree structures and then work with
@@ -50,14 +50,14 @@ namespace StructuralPatternsHunter.Analysis.PatternsExtractors
 
         private PatternInfoDTO PrepareOutput(Entity baseComponent, IEnumerable<Entity> compositeComponents, IEnumerable<Entity> leafComponents)
         {
-            var patternInfo = new PatternInfoDTO(_patternDescription);
+            var patternInfo = new PatternInfoDTO(PatternDescription);
             patternInfo.Items.Add(new PatternItemDTO(baseComponent.Name, baseComponent.Locations.First(), "Base component"));
 
             foreach (var compositeComponent in compositeComponents)
                 patternInfo.Items.Add(new PatternItemDTO(compositeComponent.Name, compositeComponent.Locations.First(), "Concrete composite"));
 
-            foreach (var leaftComponent in leafComponents)
-                patternInfo.Items.Add(new PatternItemDTO(leaftComponent.Name, leaftComponent.Locations.First(), "Concrete leaf"));
+            foreach (var leafComponent in leafComponents)
+                patternInfo.Items.Add(new PatternItemDTO(leafComponent.Name, leafComponent.Locations.First(), "Concrete leaf"));
 
             return patternInfo;
         }

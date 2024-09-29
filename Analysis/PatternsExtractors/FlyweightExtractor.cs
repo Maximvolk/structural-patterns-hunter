@@ -5,7 +5,7 @@ namespace StructuralPatternsHunter.Analysis.PatternsExtractors
 {
     internal class FlyweightExtractor : IPatternExtractor
     {
-        private const string _patternDescription = """
+        private const string PatternDescription = """
             >                        Flyweight Design Pattern
             >
             >Intent: Lets you fit more objects into the available amount of RAM by sharing
@@ -42,11 +42,12 @@ namespace StructuralPatternsHunter.Analysis.PatternsExtractors
 
                 foreach (var commonStateCandidate in commonStateCandidates)
                 {
-                    if (factoryCandidate.Methods.Any(m => m.ReturnType == entity.Name && m.Arguments.Any(a => a.Type == commonStateCandidate.Name)))
-                    {
-                        patternInfo = PrepareOutput(entity, commonStateCandidate, factoryCandidate);
-                        return true;
-                    }
+                    if (!factoryCandidate.Methods.Any(m =>
+                            m.ReturnType == entity.Name && m.Arguments.Any(a => a.Type == commonStateCandidate.Name)))
+                        continue;
+                    
+                    patternInfo = PrepareOutput(entity, commonStateCandidate, factoryCandidate);
+                    return true;
                 }
             }
 
@@ -61,7 +62,7 @@ namespace StructuralPatternsHunter.Analysis.PatternsExtractors
 
         private PatternInfoDTO PrepareOutput(Entity flyweight, Entity commonState, Entity flyweightFactory)
         {
-            var patternInfo = new PatternInfoDTO(_patternDescription);
+            var patternInfo = new PatternInfoDTO(PatternDescription);
             patternInfo.Items.Add(new PatternItemDTO(flyweight.Name, flyweight.Locations.First(), "Flyweight"));
 
             patternInfo.Items.Add(new PatternItemDTO(commonState.Name, commonState.Locations.First(), "Common State object"));

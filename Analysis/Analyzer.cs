@@ -8,8 +8,6 @@ namespace StructuralPatternsHunter.Analysis
 {
     internal class Analyzer(OutputWriter outputWriter)
     {
-        private readonly OutputWriter _outputWriter = outputWriter;
-
         private readonly List<IPatternExtractor> _extractors =
         [
             new BridgeExtractor(),
@@ -34,7 +32,7 @@ namespace StructuralPatternsHunter.Analysis
             foreach (var extractor in _extractors)
             {
                 if (extractor.TryExtract(entity, entitiesMap, out var patternInfo))
-                    _outputWriter.Write(patternInfo!.Value);
+                    outputWriter.Write(patternInfo!.Value);
             }
         }
     }

@@ -5,7 +5,7 @@ namespace StructuralPatternsHunter.Analysis.PatternsExtractors
 {
     internal class FacadeExtractor : IPatternExtractor
     {
-        private const string _patternDescription = """
+        private const string PatternDescription = """
             >                        Facade Design Pattern
             >
             >Intent: Provides a simplified interface to a library, a framework, or any
@@ -39,18 +39,16 @@ namespace StructuralPatternsHunter.Analysis.PatternsExtractors
 
             subsystems = subsystems.DistinctBy(s => s.Name).ToList();
 
-            if (subsystems.Count > 1)
-            {
-                patternInfo = PrepareOutput(entity, subsystems);
-                return true;
-            }
-
-            return false;
+            if (subsystems.Count < 2)
+                return false;
+            
+            patternInfo = PrepareOutput(entity, subsystems);
+            return true;
         }
 
         private PatternInfoDTO PrepareOutput(Entity facade, IEnumerable<Entity> subsystems)
         {
-            var patternInfo = new PatternInfoDTO(_patternDescription);
+            var patternInfo = new PatternInfoDTO(PatternDescription);
             patternInfo.Items.Add(new PatternItemDTO(facade.Name, facade.Locations.First(), "Facade"));
 
             foreach (var subsystem in subsystems)

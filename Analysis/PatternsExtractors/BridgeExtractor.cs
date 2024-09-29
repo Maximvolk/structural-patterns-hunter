@@ -5,7 +5,7 @@ namespace StructuralPatternsHunter.Analysis.PatternsExtractors
 {
     internal class BridgeExtractor : IPatternExtractor
     {
-        private const string _patternDescription = """
+        private const string PatternDescription = """
             >                        Bridge Design Pattern
             >
             >Intent: Lets you split a large class or a set of closely related classes into
@@ -34,11 +34,11 @@ namespace StructuralPatternsHunter.Analysis.PatternsExtractors
                 if (implementationCandidate == null)
                     continue;
 
-                if (IsImplementationHierarchy(implementationCandidate))
-                {
-                    patternInfo = PrepareOutput(entity, implementationCandidate);
-                    return true;
-                }
+                if (!IsImplementationHierarchy(implementationCandidate))
+                    continue;
+                
+                patternInfo = PrepareOutput(entity, implementationCandidate);
+                return true;
             }
 
             // In case base class does not have property of base implementation type, children properties must be checked
@@ -52,11 +52,11 @@ namespace StructuralPatternsHunter.Analysis.PatternsExtractors
                 if (implementationCandidate == null)
                     continue;
 
-                if (IsImplementationHierarchy(implementationCandidate))
-                {
-                    patternInfo = PrepareOutput(entity, implementationCandidate);
-                    return true;
-                }
+                if (!IsImplementationHierarchy(implementationCandidate))
+                    continue;
+                
+                patternInfo = PrepareOutput(entity, implementationCandidate);
+                return true;
             }
 
             return false;
@@ -72,7 +72,7 @@ namespace StructuralPatternsHunter.Analysis.PatternsExtractors
 
         private PatternInfoDTO PrepareOutput(Entity baseAbstraction, Entity implementationInterface)
         {
-            var patternInfo = new PatternInfoDTO(_patternDescription);
+            var patternInfo = new PatternInfoDTO(PatternDescription);
 
             // Add base abstraction and its extensions
             patternInfo.Items.Add(new PatternItemDTO(baseAbstraction.Name, baseAbstraction.Locations.First(), "A"));
